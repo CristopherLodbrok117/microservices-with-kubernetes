@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: project-config
 data:
-  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/projects_db?useSSL=false"
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/projects_db?allowPublicKeyRetrieval=true&useSSL=false"
   SPRING_DATASOURCE_USERNAME: "bilbo"
   SPRING_DATASOURCE_PASSWORD: "bilbobolson117"
   SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
