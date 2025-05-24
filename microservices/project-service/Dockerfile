@@ -14,7 +14,7 @@ COPY ../pom.xml ./parent-pom.xml
 
 # Otorga permisos y descarga dependencias
 RUN chmod +x mvnw && \
-    ./mvnw install -f parent-pom.xml
+    ./mvnw install -f parent-pom.xml \
     ./mvnw dependency:go-offline -B
 
 # Copia el código fuente y compila
