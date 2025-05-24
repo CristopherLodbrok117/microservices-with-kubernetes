@@ -28,6 +28,7 @@ spec:
               value: "files_db"
             - name: MYSQL_EXTRA_INIT_SCRIPT
               value: |
+                ALTER USER 'bilbo'@'%' IDENTIFIED WITH mysql_native_password BY 'bilbobolson117';
                 GRANT ALL PRIVILEGES ON files_db.* TO 'bilbo'@'%';
                 FLUSH PRIVILEGES;
           ports:
