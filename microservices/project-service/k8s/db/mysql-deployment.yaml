@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root1234"
+            - name: MYSQL_DATABASE  # Base de datos principal (opcional)
+              value: "projects_db"
+            - name: MYSQL_USER
+              value: "bilbo"
+            - name: MYSQL_PASSWORD
+              value: "bilbobolson117"
+            # ¡Nuevo! Crear una segunda base de datos al iniciar
+            - name: MYSQL_EXTRA_DATABASES
+              value: "files_db"
+            # Script para otorgar permisos al usuario en ambas DBs
+            - name: MYSQL_EXTRA_INIT_SCRIPT
+              value: |
+                GRANT ALL PRIVILEGES ON files_db.* TO 'bilbo'@'%';
+                FLUSH PRIVILEGES;
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql

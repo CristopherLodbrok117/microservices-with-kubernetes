@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: file-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/files_db?useSSL=false"
+  SPRING_DATASOURCE_USERNAME: "bilbo"
+  SPRING_DATASOURCE_PASSWORD: "bilbobolson117"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+
+  # Configuración Multipart (¡crítico!)
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "15MB"
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "15MB"
+  SPRING_SERVLET_MULTIPART_RESOLVE_LAZILY: "true"
+
+  # Ubicación de archivos (¡importante para Kubernetes!)
+  SINALOA_REPO_LOCATION: "/app/uploads"  # Usa ruta absoluta
+
+  # Server
+  SERVER_PORT: "8081"
