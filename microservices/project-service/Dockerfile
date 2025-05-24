@@ -9,6 +9,12 @@ COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 COPY .env /app/.env
 
+# POM padre
+COPY ../pom.xml ./parent-pom.xml  # Ajustar la ruta al POM padre
+
+# Instalar el POM padre primero
+RUN mvn install -f parent-pom.xml
+
 # Otorga permisos y descarga dependencias
 RUN chmod +x mvnw && \
     ./mvnw dependency:go-offline -B
