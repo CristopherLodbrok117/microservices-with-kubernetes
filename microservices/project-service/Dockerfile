@@ -10,7 +10,7 @@ COPY mvnw pom.xml ./
 COPY .env /app/.env
 
 # 2. Copia el POM padre a una ubicación específica
-COPY ../pom.xml ./../pom.xml  # Mantén la misma jerarquía que local
+COPY ../pom.xml ./../pom.xml
 
 # 3. Instala el POM padre usando relativePath
 RUN chmod +x mvnw && \
