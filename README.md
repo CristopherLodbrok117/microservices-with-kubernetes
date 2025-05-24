@@ -166,7 +166,139 @@ docker push ragnarlodbrokv/files-service:v1.0
 
 <br>
 
-Es buena práctica manejar versionado en lugar de siempre utilizar el tag `latest`
+Es buena práctica manejar versionado en lugar de siempre utilizar el tag `latest`. En el caso de Mysql, esta vez no tenemos que descargarla como su despliegue con docker compose, con el manifiesto de k8s automatizamos el proceso.
+
+<br>
+
+## Creación de manifiestos
+
+Kubernetes (K8s) es un orquestador de contenedores que automatiza el despliegue, escalado y gestión de aplicaciones en contenedores.
+
+- Pods: La unidad más pequeña en Kubernetes. Un Pod agrupa uno o más contenedores que comparten recursos (red, almacenamiento) y se ejecutan en el mismo nodo.
+
+- Manifiestos: Archivos YAML/JSON que definen la configuración deseada de los recursos en Kubernetes (ej: Pods, Deployments, Services).
+
+Finalmente creamos los manifiestos necesarios para levantar nuestros servicios, utilizando las imagenes que creamos.
+
+### Project-service
+
+Configmap: Almacena configuraciones no sensibles (ej: variables de entorno, endpoints).
+URLs de APIs, límites de tiempo, flags de features.
+
+```java
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: project-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/projects_db?useSSL=false"
+  SPRING_DATASOURCE_USERNAME: "bilbo"
+  SPRING_DATASOURCE_PASSWORD: "bilbobolson117"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SERVER_PORT: "8082"
+
+```
+
+<br>
+
+Deployment: Define cómo se despliega la aplicación: réplicas, imagen del contenedor, recursos como CPU y memoria y sus limites.
+
+```java
+
+```
+
+<br>
+
+Service: Expone la aplicación dentro/fuera del cluster (ClusterIP, LoadBalancer).
+
+```java
+
+```
+
+<br>
+
+HPA (Horizontal Pod Autoscaler): Escala automáticamente los pods basado en métricas (CPU/RAM). Con esta configuración escala si supera el 40% de uso de CPU o memoria
+
+```java
+
+```
+
+<br>
+
+### File-service
+
+ConfigMap: Configura rutas de almacenamiento, tipos de archivos permitidos.
+
+```java
+
+```
+
+<br>
+
+Deployment: Despliega los pods que gestionan archivos.
+
+```java
+
+```
+
+<br>
+
+HPA: Escala según demanda de solicitudes de archivos.
+
+```java
+
+```
+
+<br>
+
+PVC (PersistentVolumeClaim): Solicita almacenamiento persistente para los archivos. Permitiendo conservarlos ante reinicios de pods
+
+```java
+
+```
+
+<br>
+
+Service: Permite acceder al servicio desde otros pods o externamente
+
+```java
+
+```
+
+<br>
+
+### Mysql-service
+
+Deployment: Despliega el contenedor de MySQL con configuraciones iniciales.
+
+```java
+
+```
+
+<br>
+
+PVC: Almacena los datos de la base de datos de forma persistente.
+
+```java
+
+```
+
+<br>
+
+Service: Expone MySQL internamente (solo accesible dentro del cluster).
+
+```java
+
+```
+
+<br>
+
+```java
+
+```
+
+<br>
+
 
 <br>
 
