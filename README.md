@@ -5,6 +5,8 @@ proyectos a usuarios)
 - Microservicio de manejo de archivos
 - Miocroservicio de proyectos
 
+<br>
+
 ## Comunicación entre microservicios (Webflux)
 
 WebClient permite establecer comunicación entre servicios, enviando requests desde un microservicio a otro. Crearemos un nuevo servicio para implementar dicha lógica de aplicación.
@@ -20,7 +22,7 @@ Agregamos la dependencia.
 
 <br>
 
-Crearemos un archivo de configuración desde el microservicio que enviara request a otro
+Crearemos un archivo de configuración desde el microservicio que enviara requests a otros
 
 ```java
 package app.repository_service.config;
@@ -44,7 +46,7 @@ public class WebClientConfig {
 
 <br>
 
-Creamos un servicio donde agregaremos los métodos necesarios para realizar las consultas necesarias. 
+Creamos un servicio donde agregaremos los métodos necesarios para realizar las consultas necesarias, utilizando WebClient. 
 
 ```java
 package app.repository_service.service;
@@ -121,7 +123,7 @@ public class ProjectDto {
 
 <br>
 
-
+## Creación de imagenes
 
 
 <br>
