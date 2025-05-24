@@ -3,7 +3,14 @@ kind: Deployment
 metadata:
   name: mysql-deployment
 spec:
+  selector:  # Selector añadido
+    matchLabels:
+      app: mysql
+  replicas: 1
   template:
+    metadata:
+      labels:  # Labels que matchean con el selector
+        app: mysql
     spec:
       containers:
         - name: mysql
@@ -11,16 +18,14 @@ spec:
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "root1234"
-            - name: MYSQL_DATABASE  # Base de datos principal (opcional)
+            - name: MYSQL_DATABASE
               value: "projects_db"
             - name: MYSQL_USER
               value: "bilbo"
             - name: MYSQL_PASSWORD
               value: "bilbobolson117"
-            # ¡Nuevo! Crear una segunda base de datos al iniciar
             - name: MYSQL_EXTRA_DATABASES
               value: "files_db"
-            # Script para otorgar permisos al usuario en ambas DBs
             - name: MYSQL_EXTRA_INIT_SCRIPT
               value: |
                 GRANT ALL PRIVILEGES ON files_db.* TO 'bilbo'@'%';
@@ -30,3 +35,7 @@ spec:
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
+      volumes:  # sección volumes añadida
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-pvc  # Asegúrate de crear este PVC
