@@ -204,15 +204,61 @@ data:
 Deployment: Define cómo se despliega la aplicación: réplicas, imagen del contenedor, recursos como CPU y memoria y sus limites.
 
 ```java
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-service
+  template:
+    metadata:
+      labels:
+        app: project-service
+    spec:
+      containers:
+        - name: project-service
+          image: ragnarlodbrokv/project-service:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+          envFrom:
+            - configMapRef:
+                name: project-config  # Usa el ConfigMap
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8082
+            initialDelaySeconds: 30
+            periodSeconds: 10
 ```
 
 <br>
 
-Service: Expone la aplicación dentro/fuera del cluster (ClusterIP, LoadBalancer).
+Service: Expone la aplicación dentro/fuera del cluster.
 
 ```java
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-service
+spec:
+  selector:
+    app: project-service
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+  type: ClusterIP
 ```
 
 <br>
@@ -220,17 +266,59 @@ Service: Expone la aplicación dentro/fuera del cluster (ClusterIP, LoadBalancer
 HPA (Horizontal Pod Autoscaler): Escala automáticamente los pods basado en métricas (CPU/RAM). Con esta configuración escala si supera el 40% de uso de CPU o memoria
 
 ```java
-
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: project-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: project-deployment
+  minReplicas: 1  # Mínimo de pods
+  maxReplicas: 3  # Máximo de pods
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 40  # Escala si el uso supera el 40%
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 40  # Escala si el uso supera el 40%
 ```
 
 <br>
 
 ### File-service
 
-ConfigMap: Configura rutas de almacenamiento, tipos de archivos permitidos.
+ConfigMap: Configuración para conexión a base de datosm, rutas de almacenamiento, asi como algunas variables de entorno que nos permitiran configurar multipart correctamente
 
 ```java
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: file-config
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/files_db?useSSL=false"
+  SPRING_DATASOURCE_USERNAME: "bilbo"
+  SPRING_DATASOURCE_PASSWORD: "bilbobolson117"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
 
+  # Configuración Multipart (¡crítico!)
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: "15MB"
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: "15MB"
+  SPRING_SERVLET_MULTIPART_RESOLVE_LAZILY: "true"
+
+  # Ubicación de archivos (¡importante para Kubernetes!)
+  SINALOA_REPO_LOCATION: "/app/uploads"  # Usa ruta absoluta
+
+  # Server
+  SERVER_PORT: "8081"
 ```
 
 <br>
@@ -238,7 +326,48 @@ ConfigMap: Configura rutas de almacenamiento, tipos de archivos permitidos.
 Deployment: Despliega los pods que gestionan archivos.
 
 ```java
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: file-service
+  template:
+    metadata:
+      labels:
+        app: file-service
+    spec:
+      containers:
+        - name: file-service
+          image: ragnarlodbrokv/file-service:v1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: file-config
+          volumeMounts:
+            - name: uploads-volume
+              mountPath: /app/uploads
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8081
+            initialDelaySeconds: 30
+      volumes:
+        - name: uploads-volume
+          persistentVolumeClaim:
+            claimName: file-uploads-pvc
 ```
 
 <br>
@@ -246,7 +375,30 @@ Deployment: Despliega los pods que gestionan archivos.
 HPA: Escala según demanda de solicitudes de archivos.
 
 ```java
-
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: file-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: file-deployment
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 40
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 40
 ```
 
 <br>
@@ -254,7 +406,16 @@ HPA: Escala según demanda de solicitudes de archivos.
 PVC (PersistentVolumeClaim): Solicita almacenamiento persistente para los archivos. Permitiendo conservarlos ante reinicios de pods
 
 ```java
-
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: file-uploads-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi  # Ajusta según necesidades
 ```
 
 <br>
@@ -262,17 +423,59 @@ PVC (PersistentVolumeClaim): Solicita almacenamiento persistente para los archiv
 Service: Permite acceder al servicio desde otros pods o externamente
 
 ```java
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-service
+spec:
+  selector:
+    app: file-service
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+  type: ClusterIP
 ```
 
 <br>
 
 ### Mysql-service
 
-Deployment: Despliega el contenedor de MySQL con configuraciones iniciales.
+Deployment: Despliega el contenedor de MySQL con configuraciones iniciales. Configuramos dos bases de datos para nuestro proyecto y un usuario con permisos para ambas.
 
 ```java
-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+spec:
+  template:
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "root1234"
+            - name: MYSQL_DATABASE  # Base de datos principal (opcional)
+              value: "projects_db"
+            - name: MYSQL_USER
+              value: "bilbo"
+            - name: MYSQL_PASSWORD
+              value: "bilbobolson117"
+            # ¡Nuevo! Crear una segunda base de datos al iniciar
+            - name: MYSQL_EXTRA_DATABASES
+              value: "files_db"
+            # Script para otorgar permisos al usuario en ambas DBs
+            - name: MYSQL_EXTRA_INIT_SCRIPT
+              value: |
+                GRANT ALL PRIVILEGES ON files_db.* TO 'bilbo'@'%';
+                FLUSH PRIVILEGES;
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
 ```
 
 <br>
@@ -280,15 +483,35 @@ Deployment: Despliega el contenedor de MySQL con configuraciones iniciales.
 PVC: Almacena los datos de la base de datos de forma persistente.
 
 ```java
-
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
 ```
 
 <br>
 
-Service: Expone MySQL internamente (solo accesible dentro del cluster).
+Service: Expone MySQL internamente (solo accesible dentro del cluster) a traves del puerto 3306.
 
 ```java
-
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
 ```
 
 <br>
