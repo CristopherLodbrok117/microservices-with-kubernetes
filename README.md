@@ -516,16 +516,79 @@ spec:
 
 <br>
 
+
+## Aplicación de los manifiestos
+
+Ejecutamos los comandos respetando el orden para aplicar los manifiestos y levantar los servicios configurados (desde la carpeta correcta)
+
+### Servicio mysql:
+
 ```java
+kubectl apply -f configmap.yaml
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+```
+
+<br>
+
+Verificamos los pods
+
+```java
+kubectl get pods -l app=project-service
+```
+
+<br>
+
+Consultar logs
+
+```java
+kubectl logs -f <pod-name>
+```
+
+<br>
+
+### Microservicio de proyectos
+
+Ejecutamos los siguientes comandos para aplicar los manifiestos
+
+```java
+kubectl apply -f configmap.yaml
+kubectl apply -f pvc.yaml
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f hpa.yaml
 
 ```
 
 <br>
 
+Verificar el HPA
+
+```java
+kubectl get hpa
+```
 
 <br>
 
-<img src="" alt="" width="700">
+Generamos carga para prueba de resiliencia y escalamiento
+
+```java
+kubectl run -it --rm load-generator --image=busybox -- /bin/sh -c "while true; do wget -q -O- http://project-service:8082/api/projects; done"
+```
 
 <br>
 
+### Nicroservicio de gestor de archivos
+
+Ejecutamos los recursos
+
+```java
+kubectl apply -f configmap.yaml
+kubectl apply -f pvc.yaml
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl apply -f hpa.yaml
+
+```
+
+En cada archivo subido se comunica el microservicio de archivos con el microservicio de proyectos
