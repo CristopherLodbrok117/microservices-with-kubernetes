@@ -45,7 +45,7 @@ public class AppConfig {
                             .build()
             );
 
-            repo.saveAll(projects);
+//            repo.saveAll(projects);
         };
     }
 }
