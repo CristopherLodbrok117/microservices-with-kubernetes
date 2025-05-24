@@ -10,7 +10,7 @@ COPY mvnw pom.xml ./
 COPY .env /app/.env
 
 # POM padre
-COPY ../pom.xml ./parent-pom.xml  # Ajustar la ruta al POM padre
+COPY ../pom.xml ./parent-pom.xml
 
 # Instalar el POM padre primero
 RUN mvn install -f parent-pom.xml
