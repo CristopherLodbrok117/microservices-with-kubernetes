@@ -20,7 +20,7 @@ EXPOSE 8082
 ENTRYPOINT ["java", "-Djdk.tls.client.protocols=TLSv1.2", "-jar", "app.jar"]
 
 # Etapa 3: Imagen para repository-service
-FROM eclipse-temurin:21-jdk-jammy as repository-service
+FROM eclipse-temurin:21-jdk-jammy as files-service
 
 WORKDIR /app
 
