@@ -9,13 +9,15 @@ COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 COPY .env /app/.env
 
-# POM padre
-COPY ../pom.xml ./parent-pom.xml
+# 2. Copia el POM padre a una ubicación específica
+COPY ../pom.xml ./../pom.xml  # Mantén la misma jerarquía que local
 
-# Otorga permisos y descarga dependencias
+# 3. Instala el POM padre usando relativePath
 RUN chmod +x mvnw && \
-    ./mvnw install -f parent-pom.xml \
-    ./mvnw dependency:go-offline -B
+    ./mvnw install -f ./../pom.xml
+
+# 4. Descarga dependencias
+RUN ./mvnw dependency:go-offline -B
 
 # Copia el código fuente y compila
 COPY src/ src/
