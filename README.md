@@ -123,8 +123,50 @@ public class ProjectDto {
 
 <br>
 
+## Docker
+
+Esta vez subiremos nuestras imagenes a repositorios de docker-hub. Para ello primero configuraremos un token de acceso. Iniciamos sesión en [Dockerhub] nos dirigimos a Account setting > Personal access token. Y creamos uno nuevo configurando los permisos, descripción, etc.
+
+Desde la terminal ejecutamos el comando que nos arroja el propio Docker (y guardamos bien el token)
+`docker login -u nuestro-usuario-de-docker`
+
+Cuando nos pida contraseña pegamos el token.
+
+A partir de ahora podremos subir las imagenes generadas con suma facilidad.
+
+<br>
+
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/317884ceb9d0afceffb3ac747c547556bc680cca/screenshots/30%20-%20access%20dockerhub.png" alt="token" width="700">
+
+<br>
+
+<br>
+
 ## Creación de imagenes
 
+Desde la carpeta de cada microservicio ejecutamos los siguientes comandos
+
+Microservicio de proyectos
+
+```java
+docker build -t ragnarlodbrokv/project-service:v1.0 . --no-cache
+
+docker push ragnarlodbrokv/project-service:v1.0
+```
+
+<br>
+
+Microservicio de archivos
+
+```java
+docker build -t ragnarlodbrokv/files-service:v1.0 . --no-cache
+
+docker push ragnarlodbrokv/files-service:v1.0
+```
+
+<br>
+
+Es buena práctica manejar versionado en lugar de siempre utilizar el tag `latest`
 
 <br>
 
