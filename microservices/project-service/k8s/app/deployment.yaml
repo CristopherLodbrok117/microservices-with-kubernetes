@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: project-service
-          image: ragnarlodbrokv/project-service:v1.0
+          image: ragnarlodbrokv/project-service:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: MANAGEMENT_ENDPOINT_HEALTH_ENABLED
@@ -27,7 +27,7 @@ spec:
             - containerPort: 8082
           envFrom:
             - configMapRef:
-                name: project-config  # Usa el ConfigMap
+                name: project-config
           resources:
             requests:
               cpu: "500m"

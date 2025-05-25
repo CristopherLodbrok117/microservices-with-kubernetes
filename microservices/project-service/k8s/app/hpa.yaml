@@ -7,18 +7,18 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: project-deployment
-  minReplicas: 1  # Mínimo de pods
-  maxReplicas: 3  # Máximo de pods
+  minReplicas: 1
+  maxReplicas: 3
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 40  # Escala si el uso supera el 40%
+          averageUtilization: 40
     - type: Resource
       resource:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 40  # Escala si el uso supera el 40%
+          averageUtilization: 40
