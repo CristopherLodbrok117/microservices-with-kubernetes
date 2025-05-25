@@ -201,16 +201,19 @@ docker build -f Dockerfile -t ragnarlodbrokv/file-service:latest --target file-s
 
 <br>
 
-<br>
-
-<img src="" alt="" width="700">
+Imagen de proyecto creada
 
 <br>
 
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/79516fa55e776857b51181dea7aad6f9307e96d2/screenshots/40%20-%20docker%20image%20project.png" alt="project image" width="700">
 
 <br>
 
-<img src="" alt="" width="700">
+Imagen de file service creada
+
+<br>
+
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/79516fa55e776857b51181dea7aad6f9307e96d2/screenshots/41%20-%20image%20repository.png" alt="file image" width="700">
 
 <br>
 
@@ -223,36 +226,13 @@ docker push ragnarlodbrokv/file-service:latest
 
 <br>
 
-<br>
-
-<img src="" alt="" width="700">
+Imagenes subidas al repositorio de Dockerhub
 
 <br>
 
-<br>
-
-<img src="" alt="" width="700">
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/79516fa55e776857b51181dea7aad6f9307e96d2/screenshots/45%20-%20dockerhub%20images%20uploaded.png" alt="dockerhub" width="700">
 
 <br>
-
-<br>
-
-<img src="" alt="" width="700">
-
-<br>
-
-<br>
-
-<img src="" alt="" width="700">
-
-<br>
-
-<br>
-
-<img src="" alt="" width="700">
-
-<br>
-
 
 <br>
 
