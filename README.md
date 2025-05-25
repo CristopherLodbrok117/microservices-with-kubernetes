@@ -144,29 +144,115 @@ A partir de ahora podremos subir las imagenes generadas con suma facilidad.
 
 ## Creación de imagenes
 
-Desde la carpeta de cada microservicio ejecutamos los siguientes comandos
+Desde la carpeta de cada microservicio ejecutamos los siguientes comandos. Crearemos un Dockerfile multi moduloen la raiz, al mismo nivel de los microservicios. Tiene la configuración
+para construir cualquiera de los dos microservicios dependiendo el que se solicite
 
-Microservicio de proyectos
+DOckerfile multi modulo
 
 ```java
-docker build -t ragnarlodbrokv/project-service:v1.0 . --no-cache
+# Etapa 1: Build con Maven
+FROM maven:3.9-eclipse-temurin-21 as builder
 
-docker push ragnarlodbrokv/project-service:v1.0
+WORKDIR /build
+
+# Copiamos todo el proyecto multi-módulo (asume que el pom.xml padre está aquí)
+COPY . .
+
+# Compilamos todos los módulos sin tests
+RUN mvn clean package -DskipTests
+
+# Etapa 2: Imagen para project-service
+FROM eclipse-temurin:21-jdk-jammy as project-service
+
+WORKDIR /app
+COPY --from=builder /build/project-service/target/*.jar app.jar
+COPY project-service/.env /app/.env
+
+EXPOSE 8082
+ENTRYPOINT ["java", "-Djdk.tls.client.protocols=TLSv1.2", "-jar", "app.jar"]
+
+# Etapa 3: Imagen para repository-service
+FROM eclipse-temurin:21-jdk-jammy as file-service
+
+WORKDIR /app
+
+RUN mkdir -p /app/uploads && \
+    chmod -R 775 /app/uploads && \
+    chown -R 1000:1000 /app/uploads
+
+COPY --from=builder /build/repository-service/target/*.jar app.jar
+COPY repository-service/.env /app/.env
+
+EXPOSE 8081
+VOLUME /app/uploads
+
+USER 1000
+ENTRYPOINT ["java", "-Djdk.tls.client.protocols=TLSv1.2", "-jar", "app.jar"]
 ```
 
 <br>
 
-Microservicio de archivos
+Una vez creados desde ejecutamos los siguientes comandos para generar las imagenes
 
 ```java
-docker build -t ragnarlodbrokv/files-service:v1.0 . --no-cache
-
-docker push ragnarlodbrokv/files-service:v1.0
+docker build -f Dockerfile -t ragnarlodbrokv/project-service:latest --target project-service . --no-cache
+docker build -f Dockerfile -t ragnarlodbrokv/file-service:latest --target file-service . --no-cache
 ```
 
 <br>
 
-Es buena práctica manejar versionado en lugar de siempre utilizar el tag `latest`. En el caso de Mysql, esta vez no tenemos que descargarla como su despliegue con docker compose, con el manifiesto de k8s automatizamos el proceso.
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+Ahora subimos a nuestro Dockerhub las imagenes, ejecutnado
+
+```java
+docker push ragnarlodbrokv/project-service:latest
+docker push ragnarlodbrokv/file-service:latest
+```
+
+<br>
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
 
 <br>
 
