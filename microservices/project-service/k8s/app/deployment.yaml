@@ -15,7 +15,7 @@ spec:
       containers:
         - name: project-service
           image: ragnarlodbrokv/project-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: MANAGEMENT_ENDPOINT_HEALTH_ENABLED
               value: "true"

@@ -15,7 +15,7 @@ spec:
       containers:
         - name: file-service
           image: ragnarlodbrokv/file-service:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: MANAGEMENT_ENDPOINT_HEALTH_ENABLED
               value: "true"
