@@ -196,6 +196,7 @@ Una vez creados desde ejecutamos los siguientes comandos para generar las imagen
 
 ```java
 docker build -f Dockerfile -t ragnarlodbrokv/project-service:latest --target project-service . --no-cache
+
 docker build -f Dockerfile -t ragnarlodbrokv/file-service:latest --target file-service . --no-cache
 ```
 
@@ -221,6 +222,7 @@ Ahora subimos a nuestro Dockerhub las imagenes, ejecutnado
 
 ```java
 docker push ragnarlodbrokv/project-service:latest
+
 docker push ragnarlodbrokv/file-service:latest
 ```
 
@@ -267,7 +269,7 @@ data:
 
 <br>
 
-Deployment: Define cómo se despliega la aplicación: réplicas, imagen del contenedor, recursos como CPU y memoria y sus limites.
+Deployment: Define cómo se despliega la aplicación: número de replicas, imagen del contenedor, variables de entorno necesarias para actuator, recursos como CPU y memoria y sus limites.
 
 ```java
 apiVersion: apps/v1
@@ -286,13 +288,20 @@ spec:
     spec:
       containers:
         - name: project-service
-          image: ragnarlodbrokv/project-service:v1.0
-          imagePullPolicy: IfNotPresent
+          image: ragnarlodbrokv/project-service:latest
+          imagePullPolicy: Always
+          env:
+            - name: MANAGEMENT_ENDPOINT_HEALTH_ENABLED
+              value: "true"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
           ports:
             - containerPort: 8082
           envFrom:
             - configMapRef:
-                name: project-config  # Usa el ConfigMap
+                name: project-config
           resources:
             requests:
               cpu: "500m"
@@ -408,8 +417,15 @@ spec:
     spec:
       containers:
         - name: file-service
-          image: ragnarlodbrokv/file-service:v1.0
-          imagePullPolicy: IfNotPresent
+          image: ragnarlodbrokv/file-service:latest
+          imagePullPolicy: Always
+          env:
+            - name: MANAGEMENT_ENDPOINT_HEALTH_ENABLED
+              value: "true"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
           ports:
             - containerPort: 8081
           envFrom:
@@ -597,19 +613,25 @@ kubectl apply -f service.yaml
 
 <br>
 
-Verificamos los pods
-
-```java
-kubectl get pods -l app=project-service
-```
+Aplicación de manifiestos para mysql
 
 <br>
 
-Consultar logs
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/79516fa55e776857b51181dea7aad6f9307e96d2/screenshots/50%20-%20mysq%20resources%20applied.png" alt="mysql manifests" width="700">
 
-```java
-kubectl logs -f <pod-name>
-```
+<br>
+
+Deployment de mysql
+
+<br>
+
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/19eaf143cd1e7521bf4385cd4aebe912b7ab5519/screenshots/51%20-%20mysql%20deployment.png" alt="mysql deployment" width="700">
+
+<br>
+
+
+
+
 
 <br>
 
@@ -628,25 +650,41 @@ kubectl apply -f hpa.yaml
 
 <br>
 
-Verificar el HPA
-
-```java
-kubectl get hpa
-```
+Aplicando manifiestos
 
 <br>
 
-Generamos carga para prueba de resiliencia y escalamiento
-
-```java
-kubectl run -it --rm load-generator --image=busybox -- /bin/sh -c "while true; do wget -q -O- http://project-service:8082/api/projects; done"
-```
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/19eaf143cd1e7521bf4385cd4aebe912b7ab5519/screenshots/52%20-%20project%20resources%20created.png" alt="project manifests" width="700">
 
 <br>
 
-### Nicroservicio de gestor de archivos
+Deployments, pods y servicios disponibles y corriendo
 
-Ejecutamos los recursos
+<br>
+
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/19eaf143cd1e7521bf4385cd4aebe912b7ab5519/screenshots/55%20-%20mysql%20and%20project%20running.png" alt="ready" width="700">
+
+<br>
+
+Logs de inicio exitoso con `kubectl logs -f <pod-name>`
+
+<br>
+
+<img src="https://github.com/CristopherLodbrok117/microservices-with-kubernetes/blob/19eaf143cd1e7521bf4385cd4aebe912b7ab5519/screenshots/53%20-%20project%20deployment%20logs.png" alt="api logs" width="700">
+
+<br>
+
+
+<br>
+
+<img src="" alt="" width="700">
+
+<br>
+
+
+### Microservicio de gestor de archivos
+
+Repetimos el mismo proceso con el microservicio de archivos
 
 ```java
 kubectl apply -f configmap.yaml
@@ -658,3 +696,13 @@ kubectl apply -f hpa.yaml
 ```
 
 En cada archivo subido se comunica el microservicio de archivos con el microservicio de proyectos
+
+<br>
+
+Generamos carga para prueba de resiliencia y escalamiento (desde otra terminal o sesión con putty)
+
+```java
+kubectl run -it --rm load-generator --image=busybox -- /bin/sh -c "while true; do wget -q -O- http://project-service:8082/api/projects; done"
+```
+
+<br>
