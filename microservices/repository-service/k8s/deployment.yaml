@@ -16,6 +16,13 @@ spec:
         - name: file-service
           image: ragnarlodbrokv/file-service:v1.0
           imagePullPolicy: IfNotPresent
+          env:
+            - name: MANAGEMENT_ENDPOINT_HEALTH_ENABLED
+              value: "true"
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+              value: "always"
           ports:
             - containerPort: 8081
           envFrom:
