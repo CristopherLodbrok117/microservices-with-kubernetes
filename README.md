@@ -706,3 +706,10 @@ kubectl run -it --rm load-generator --image=busybox -- /bin/sh -c "while true; d
 ```
 
 <br>
+
+## Videos de despliegue, orquestación y pruebas de este proyecto
+- [1 - Comunicación entre microsevicios](https://youtu.be/9e68NAF9GAs)
+- [2 - Servicios independientes y contenerización con Docker](https://youtu.be/ru1n4IoBrWs)
+- [3 - Aplicación de manifiestos con Kubectl](https://youtu.be/Is5PmHvwHNU)
+- [4 - Chaos Engineering](https://youtu.be/CzDSEZANSXc)
+- [5 - Escalabilidad y Resiliencia - HPA](https://youtu.be/nVcd1KLlXbI)
